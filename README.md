@@ -1,5 +1,7 @@
 # jobpipe · 投递作战台
 
+**在线使用：<https://ssllf8.github.io/jobpipe/>** —— 手机浏览器打开后「添加到主屏幕」，即为可离线使用的全屏 App。
+
 一个**无服务端**的求职投递管理工具。手机优先，纯黑底 + 单一强调色，离线可用。
 
 > 解决的问题：投了 20 家公司之后，记不住谁回了谁没回、该跟进谁、上一轮面试聊了什么。
@@ -192,7 +194,8 @@ python tools/e2e_pwa.py
 - `check_public.py` 是唯一会挡住部署的检查，所以做成独立可执行脚本而不是测试断言
 - 同时只保留一个部署在跑，队列里旧的会被取消
 
-首次启用需在仓库 Settings → Pages 里把 Source 设为 **GitHub Actions**。
+Pages 已启用（Source = **GitHub Actions**），线上地址：<https://ssllf8.github.io/jobpipe/>
+若换新仓库，需先在 Settings → Pages 里把 Source 设为 GitHub Actions，**再**推代码——否则第一次 `deploy-pages` 会因 Pages 未启用而失败。
 
 ## 数据备份与迁移
 
