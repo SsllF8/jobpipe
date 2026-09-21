@@ -159,9 +159,52 @@ build.py               自动取 data/ 里最新一份 seed 内联
 「20+ 渠道」不是口号，有测试守着：`tools/channels.json` 少于 20 条会直接测试失败，
 免得日后为了省事把渠道悄悄砍掉。
 
+### 9. 每天怎么用：一个桌面快捷方式
+
+日常动作只有三步——挑岗位、贴 JD、上线。第三步全自动，于是把整条链路收进一个脚本，
+桌面上双击就跑：
+
+```
+tools/daily.py
+  ① search_plan.py --open      生成今日检索清单并直接在浏览器里打开
+  ② build.py --publish          本地先过一遍构建 + 发布闸门
+     check_public.py            有问题就停在这里，不推上去让 CI 变红
+  ③ git add/commit/push         CI 自动测试 → 审计 → 上线（约 1 分钟）
+  ④ 打印今天的下一步操作
+```
+
+- **先自检再推**：② 不过就直接中断，线上保持上一版可用状态 ——
+  宁可今天不更新，也不要把一个打不开的站点推上去
+- **无变更不空提交**：`git diff --cached --quiet` 判断，没有变化就跳过提交
+- **不落盘存凭据**：从 Git Credential Manager 读出 token，用 `http.extraheader`
+  随请求带走。之前用临时凭据文件踩过坑 —— 它依赖 `$HOME` 正常，环境一异常就
+  **静默失败并挂起等人输密码**，所以这里额外带 `GIT_TERMINAL_PROMPT=0`
+- **双击场景要看得见报错**：脚本在终端里跑完不关窗（`sys.stdin.isatty()` 时等一次回车），
+  而管道 / CI 里跑就完全不拦
+
+再配个桌面快捷方式：
+
+```bash
+python tools/make_shortcut.py          # 桌面生成「每日求职推送」快捷方式
+python tools/make_shortcut.py --remove # 不要了就删掉
+```
+
+`make_shortcut.py` 顺带把 PWA 图标 `src/icons/icon-192.png` 包成 `assets/jobpipe.ico`
+—— ICO 从 Vista 起允许直接内嵌 PNG，所以不需要 Pillow 之类的绘图库，纯 `struct` 拼个头就行。
+建快捷方式走 PowerShell 的 `-EncodedCommand`（UTF-16LE base64），不拼命令行字符串，
+中文路径和空格都不会被转义搞坏；建完还会**读回来核对** Target / Arguments。
+
 ## 快速开始
 
 ```bash
+# 每日一键：检索清单 → 自检 → 推送上线（桌面快捷方式跑的就是这个）
+python tools/daily.py
+python tools/daily.py --no-push    # 只本地生成，不推远端
+python tools/daily.py --no-open    # 不自动打开浏览器
+
+# 桌面快捷方式 + 图标
+python tools/make_shortcut.py
+
 # 公开版产物 → dist/index.html（含 PWA 附属文件）
 python build.py
 
@@ -269,8 +312,12 @@ Pages 已启用（Source = **GitHub Actions**），线上地址：<https://ssllf
 │   ├── demo-state.json        虚构演示状态，仅供 --demo
 │   └── state.json             你的导出存档（已 gitignore）
 ├── build.py            内联构建，含个人数据防误发布护栏 + PWA 资产产出
+├── assets/
+│   └── jobpipe.ico     桌面快捷方式图标（make_shortcut.py 由 PWA 图标转出）
 ├── tools/
 │   ├── channels.json   20+ 渠道清单（名称 / 类别 / 域名 / 站内搜索 URL）
+│   ├── daily.py        每日一键：检索清单 → 本地自检 → 提交推送 → 下一步提示
+│   ├── make_shortcut.py 生成桌面快捷方式（顺带把 PWA 图标包成 .ico）
 │   ├── search_plan.py  采集①：展开「关键词 × 城市 × 渠道」→ 可点检索清单
 │   ├── ingest_jd.py    采集②：JD 文本 → 规则解析 + 打分 → 合并进新 seed
 │   ├── gen_letter.py   自荐信生成：简历 + 岗位 → DeepSeek → letters.json
@@ -281,18 +328,18 @@ Pages 已启用（Source = **GitHub Actions**），线上地址：<https://ssllf
 │   ├── e2e.py          Playwright 端到端行为验证（点击→存储→刷新→仍在）
 │   └── e2e_pwa.py      Playwright PWA 验证（注册→离线→升级提示）
 ├── .github/workflows/deploy.yml   测试 → 构建 → 审计 → 部署 Pages
-└── tests/              148 项测试（conftest.py 把种子钉在初始那份，采集不干扰测试）
+└── tests/              157 项测试（conftest.py 把种子钉在初始那份，采集不干扰测试）
 ```
 
 ## 测试
 
 ```bash
-python -m pytest       # 148 passed
+python -m pytest       # 157 passed
 python tools/e2e.py    # 2 环境 × 26 项断言
 python tools/e2e_pwa.py  # 25 项断言
 ```
 
-单元测试分七层：
+单元测试分八层：
 
 - **数据层** —— id 唯一、字段完整、状态与分档合法、每个岗位都有可解释的匹配理由
 - **算法层** —— 打分确定性、值域、维度权重不越界、薪资解析、人工 S 级不被算法筛掉、
@@ -308,6 +355,8 @@ python tools/e2e_pwa.py  # 25 项断言
 - **采集层** —— 渠道清单必须 ≥20 条且有类别、无域名的渠道不能生成 `site:` 空查询、
   链接全部 URL 编码、清单页零外链零请求、JD 解析（薪资 / 门槛 / 学历 / 地点 / 链接 / 公司**全称**）、
   认不出的字段留空而不是瞎猜、重复岗位被拦下、生成的匹配理由真的取自打分明细
+- **日常流程层** —— ICO 头与内嵌 PNG 的结构、PowerShell 引号转义、**取不到凭据时必须直接失败
+  而不是落到交互式等密码**、推送输出不得回显 token、`--no-push` 不 stage 任何改动且不留垃圾文件
 
 `tools/e2e.py` 是 M2 加的关键一环。它驱动真实浏览器做完整流程，核心断言只有一条：
 
@@ -352,6 +401,7 @@ localStorage 的行为不同，不能想当然（实测两者都可用，但这�
 - [x] **M3** 自荐信生成（DeepSeek）+ 缓存 + 一键复制 + 公开产物排除
 - [x] **M4** PWA（可安装 + 离线 + 版本化缓存 + 升级提示）+ CI + Pages 部署 + 发布闸门
 - [x] **M5** 架构图（`docs/architecture.svg`）+ 岗位采集（检索清单 + JD 规则录入）
+- [x] **M6** 每日一键流程（`tools/daily.py`）+ 桌面快捷方式（`tools/make_shortcut.py`）
 
 ## 说明
 
