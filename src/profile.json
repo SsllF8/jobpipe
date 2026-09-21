@@ -1,0 +1,58 @@
+{
+  "name": "刘展博",
+  "city": "上海",
+  "education": "本科",
+  "salary_floor_k": 12,
+  "target_titles": [
+    "AI应用开发工程师",
+    "大模型应用工程师",
+    "AI Agent 开发",
+    "AI应用工程师"
+  ],
+  "skills": {
+    "core": [
+      "python", "langchain", "rag", "向量数据库", "向量检索", "chromadb", "chroma",
+      "prompt", "提示工程", "提示词", "llm", "大模型", "faiss", "milvus",
+      "function calling", "mcp",
+      "fastapi", "streamlit", "pandas", "sql", "sqlite", "git", "docker"
+    ],
+    "familiar": [
+      "java", "c语言", "html", "css", "javascript", "matplotlib",
+      "linux", "docker compose", "rest", "restful", "api", "mysql",
+      "pytest", "sqlalchemy"
+    ],
+    "plus": [
+      "stable diffusion", "controlnet", "lora", "comfyui", "aigc",
+      "axure", "墨刀", "xmind"
+    ]
+  },
+  "direction": {
+    "positive": {
+      "agent编排": ["langgraph", "autogen", "agent", "工作流", "编排", "dag", "拓扑"],
+      "rag知识库": ["rag", "知识库", "向量数据库", "chroma", "milvus", "faiss", "检索", "召回", "nl2sql"],
+      "大模型应用": ["大模型", "llm", "提示工程", "prompt", "function calling", "mcp", "cot", "react", "tot"],
+      "对话与客服": ["对话", "客服", "多轮", "意图识别", "问答"],
+      "数据与自动化": ["数据分析", "自动化", "流程", "机器人训练", "语料"]
+    },
+    "negative": {
+      "前端框架": ["vue", "react.js", "react 前端", "前端框架"],
+      "3D建模": ["blender", "c4d", "3ds max", "keyshot", "3d建模", "产品可视化"],
+      "算法建模": ["pytorch", "vllm", "xgboost", "gbdt", "boosting", "sft", "微调", "模型训练"],
+      "高并发后端": ["高并发", "分布式系统", "消息队列", "grpc"]
+    }
+  },
+  "districts": ["徐汇", "长宁", "普陀", "闵行", "静安", "黄浦", "浦东", "杨浦", "虹口", "宝山"],
+  "commute_good": ["徐汇", "长宁", "普陀", "闵行"],
+  "weights": {
+    "skill": 40,
+    "barrier": 30,
+    "direction": 20,
+    "compensation": 10
+  },
+  "tiers": {
+    "S": 78,
+    "A": 60,
+    "B": 45
+  },
+  "_note": "本文件是打分引擎（src/score.py）的唯一输入。改这里即可调整匹配口径，不需要改代码。"
+}

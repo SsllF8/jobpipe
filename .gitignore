@@ -1,0 +1,37 @@
+# 密钥与本地配置
+.env
+.env.local
+
+# 真实投递数据：含公司名/薪资/面试记录，属个人隐私，绝不进公开仓库
+# state.json 是从看板「导出数据」得到的本地存档，只用于个人版构建与备份
+data/state.json
+data/applications.json
+data/exports/
+
+# 自荐信正文本点名了投递的公司，同样反映个人投递行为，不进公开仓库
+# （构建产物里也只有演示版/个人版才内联它，见 build.py 的 expose_letters）
+data/letters.json
+
+# 构建产物（由 build.py 生成，可重新构建）
+dist/
+
+# 可发布产物（build.py --publish 生成，CI 部署用）
+dist-publish/
+
+# PWA 端到端测试的临时服务目录
+.pwa_tmp/
+
+# Python
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.pytest_tmp/
+.venv/
+venv/
+
+# 编辑器 / 系统
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+desktop.ini

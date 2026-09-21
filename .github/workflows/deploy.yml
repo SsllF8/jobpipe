@@ -1,0 +1,63 @@
+name: 测试并部署
+
+# 只在 main 分支推送时部署；PR 只跑测试不部署，避免预览分支污染正式地址。
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+# GitHub Pages 官方部署流程要求的权限组合
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# 同时只允许一个部署在跑；队列里只保留最新的一次，旧的取消
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  verify:
+    name: 测试与产物审计
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: 安装依赖
+        run: pip install --disable-pip-version-check pytest
+
+      - name: 单元测试
+        run: python -m pytest -q
+
+      - name: 构建可发布产物
+        # --publish 会先清空 dist-publish/ 再只产出 index.html 与 PWA 附属文件，
+        # 结构上排除演示版/个人版混入的可能
+        run: python build.py --publish
+
+      - name: 发布闸门：产物不得含个人数据
+        # 唯一一道会挡住部署的检查，所以它不写在测试里，而是独立可执行
+        run: python tools/check_public.py
+
+      - name: 上传 Pages 产物
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: dist-publish
+
+  deploy:
+    name: 部署到 GitHub Pages
+    needs: verify
+    # PR 只验证不部署
+    if: github.event_name != 'pull_request'
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4

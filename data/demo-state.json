@@ -1,0 +1,81 @@
+{
+  "_note": "仅用于 `python build.py --demo` 的预览，与 src/store.js 的 state 结构完全一致。正式构建不读取本文件。所有状态均为虚构，仅用于演示「用过一段时间后」的界面形态。",
+  "schema": 1,
+  "updated_at": "2026-09-19T20:00",
+  "patches": {
+    "bailian-ai": {
+      "status": "applied",
+      "prev_status": "wishlist",
+      "applied_at": "2026-09-16",
+      "resume_version": "A",
+      "next_action": "电话确认是否接受 2024 届",
+      "next_action_at": "2026-09-19",
+      "notes": "岗位已经挂了 4 天，投递时 HR 不在线。",
+      "timeline": [
+        { "at": "2026-09-16T10:20", "kind": "status", "from": "wishlist", "to": "applied", "note": "猎聘投递，A 版简历" },
+        { "at": "2026-09-18T15:40", "kind": "note", "note": "岗位仍在挂，未收到任何回复" }
+      ]
+    },
+    "fuyi-tianjian-ai": {
+      "status": "interview",
+      "prev_status": "screening",
+      "applied_at": "2026-09-15",
+      "resume_version": "B",
+      "next_action": "一面 14:00，准备 3 个必答题",
+      "next_action_at": "2026-09-22",
+      "notes": "线上腾讯会议，面试官是技术负责人。",
+      "timeline": [
+        { "at": "2026-09-15T09:30", "kind": "status", "from": "wishlist", "to": "applied", "note": "官网投递，B 版简历" },
+        { "at": "2026-09-18T11:00", "kind": "note", "note": "HR 电话：问项目真实用户量，如实说明是个人项目" },
+        { "at": "2026-09-19T16:20", "kind": "status", "from": "screening", "to": "interview", "note": "一面约在 9/22 14:00，线上腾讯会议" }
+      ]
+    },
+    "pingan-health-ai": {
+      "status": "screening",
+      "prev_status": "applied",
+      "applied_at": "2026-09-14",
+      "resume_version": "A",
+      "next_action": "补发项目作品集链接",
+      "next_action_at": "2026-09-20",
+      "timeline": [
+        { "at": "2026-09-14T14:05", "kind": "status", "from": "wishlist", "to": "applied", "note": "猎聘投递" },
+        { "at": "2026-09-17T10:10", "kind": "note", "note": "HR 加微信，要 GitHub 链接" }
+      ]
+    },
+    "opmbio-ai-tech": {
+      "status": "applied",
+      "prev_status": "wishlist",
+      "applied_at": "2026-09-05",
+      "resume_version": "B",
+      "next_action": "",
+      "next_action_at": null,
+      "timeline": [
+        { "at": "2026-09-05T09:00", "kind": "status", "from": "wishlist", "to": "applied", "note": "猎聘投递，B 版" }
+      ]
+    },
+    "cc-ai-trainer": {
+      "status": "rejected",
+      "prev_status": "applied",
+      "applied_at": "2026-09-12",
+      "resume_version": "A",
+      "next_action": "",
+      "next_action_at": null,
+      "timeline": [
+        { "at": "2026-09-12T11:00", "kind": "status", "from": "wishlist", "to": "applied", "note": "猎聘投递" },
+        { "at": "2026-09-18T17:30", "kind": "status", "from": "applied", "to": "rejected", "note": "HR 回复：希望找有语音/ASR 经验的" }
+      ]
+    },
+    "dongfang-yanhua-ai": {
+      "status": "dropped",
+      "prev_status": "wishlist",
+      "applied_at": null,
+      "next_action": "",
+      "next_action_at": null,
+      "timeline": [
+        { "at": "2026-09-19T20:00", "kind": "status", "from": "wishlist", "to": "dropped", "note": "3 年经验硬门槛，暂不投，留作后续" }
+      ]
+    }
+  },
+  "added": [],
+  "removed": []
+}
