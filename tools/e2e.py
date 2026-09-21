@@ -272,7 +272,8 @@ def main() -> None:
             all_failed += len(r.failed)
             ctx.close()
 
-        # 视觉截图（干净的演示状态，专门给「操作区」和「新增岗位」留档）
+        # 截图留档（落 dist/_shots/，排查失败时能回看当时的界面；
+        # 给 README 用的展示截图在 tools/screenshot.py，两者不要混）
         ctx = browser.new_context(viewport=VIEWPORT, device_scale_factor=2)
         page = ctx.new_page()
         page.goto(TARGET.as_uri(), wait_until="load")

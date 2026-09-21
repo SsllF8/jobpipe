@@ -40,6 +40,8 @@ from playwright.sync_api import sync_playwright
 ROOT = Path(__file__).resolve().parent.parent
 PUBLISH = ROOT / "dist-publish"
 SERVE = ROOT / ".pwa_tmp"
+# 「12-升级提示.png」只能靠"改 sw.js 触发一次真升级"截出来，静态复现不了，
+# 所以这里是**唯一**仍写 docs/shots/ 的测试脚本（其余展示截图见 tools/screenshot.py）。
 SHOTS = ROOT / "docs" / "shots"
 VIEWPORT = {"width": 390, "height": 844}
 

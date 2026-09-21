@@ -7,7 +7,20 @@
 > 解决的问题：投了 20 家公司之后，记不住谁回了谁没回、该跟进谁、上一轮面试聊了什么。
 > 工具本身要足够轻，不能比求职这件事更费劲。
 
-![今日](docs/shots/01-今日.png)
+<p align="center">
+  <img src="docs/shots/01-今日.png" width="30%" alt="今日：打开即见今天要做的事">
+  <img src="docs/shots/02-岗位.png" width="30%" alt="岗位：按匹配分排序，S/A/B/C 分档筛选">
+  <img src="docs/shots/05-岗位详情.png" width="30%" alt="岗位详情：为什么匹配 / 能力缺口 / 投递建议">
+</p>
+
+<p align="center">
+  <img src="docs/shots/09-自荐信详情.png" width="30%" alt="自荐信：只给 S 级岗位准备，一键复制">
+  <img src="docs/shots/06-数据面板.png" width="30%" alt="数据与设置：本地记录、备份迁移、装到手机">
+  <img src="docs/shots/11-装到手机.png" width="30%" alt="装到手机：页面内安装入口，不用翻浏览器菜单">
+</p>
+
+> 以上截图由 `python tools/screenshot.py` 从**干净的演示状态**一键生成（手机尺寸 390×844 @2x）。
+> 完整 12 张见 [`docs/shots/`](docs/shots/)。
 
 ---
 
@@ -428,8 +441,15 @@ localStorage 的行为不同，不能想当然（实测两者都可用，但这�
 > **点了「安装」真的会调起系统安装框吗（deferred 丢没丢）。**
 > **拒绝了之后会不会留一个点了没反应的按钮。**
 
-`screenshot.py` 用 Playwright 打开产物，检查 console 报错并截图 ——
+`screenshot.py` 从**干净的演示状态**生成 README 用的展示截图，顺便检查 console 报错 ——
 因为"构建通过"不等于"页面能跑"（M1 的详情面板关不掉、M2 的归档后彻底消失，都是这么发现的）。
+它走本地 http 而非 `file://`，因为安装入口靠 `beforeinstallprompt` 驱动，`file://` 下截不出来。
+
+> 展示截图**不由测试脚本产出**。以前 `e2e.py` 顺手往 `docs/shots/` 写图，跑一次测试就把带
+> 测试痕迹的中间态覆盖上去了 —— 数据面板那张图里甚至飘着「端到端测试公司已恢复到岗位池」的
+> 提示条。现在测试的截图落 `dist/_shots/`（已 gitignore）当调试留档，展示图只由
+> `screenshot.py` 一处产出，两者不再互相踩。
+> 例外：`12-升级提示.png` 只能靠"改 `sw.js` 触发一次真升级"截出来，仍由 `e2e_pwa.py` 留档。
 
 ## 隐私
 
