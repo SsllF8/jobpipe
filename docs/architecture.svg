@@ -1,0 +1,59 @@
+<svg viewBox="0 0 680 614" width="100%" role="img" xmlns="http://www.w3.org/2000/svg">
+<title>jobpipe 架构图</title>
+<desc>采集层到使用层的五层架构：多来源检索产出岗位池，三层数据分离，构建期内联为单文件并经过三道隐私闸门，托管到 GitHub Pages 作为可离线 PWA，用户操作回写浏览器本地存储。</desc>
+<defs>
+<marker id="ar" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+<path d="M2 1L8 5L2 9" fill="none" stroke="#c41e3a" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+</marker>
+</defs>
+<rect x="0" y="0" width="680" height="614" rx="16" fill="#0b0b0b"/>
+<text x="40" y="24" font-family="-apple-system, 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif" font-size="13" font-weight="500" fill="#8a8a8a" dominant-baseline="central">jobpipe · 离线优先 + 种子/补丁分离</text>
+
+<rect x="40" y="40" width="520" height="60" rx="10" fill="#161616" stroke="#3a3a3a" stroke-width="0.5"/>
+<text x="64" y="66" font-family="-apple-system, 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif" font-size="12" fill="#c41e3a" dominant-baseline="central">① 采集</text>
+<text x="140" y="62" font-family="-apple-system, 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif" font-size="14" font-weight="500" fill="#e8e8e8" dominant-baseline="central">20+ 渠道 · 站点限定检索</text>
+<text x="140" y="82" font-family="-apple-system, 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif" font-size="12" fill="#9a9a9a" dominant-baseline="central">每天 1 次，全链路唯一的固定 AI 成本</text>
+
+<line x1="300" y1="100" x2="300" y2="134" stroke="#5a5a5a" stroke-width="1.5" marker-end="url(#ar)"/>
+
+<rect x="40" y="134" width="520" height="88" rx="10" fill="#161616" stroke="#3a3a3a" stroke-width="0.5"/>
+<text x="64" y="152" font-family="-apple-system, 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif" font-size="12" fill="#c41e3a" dominant-baseline="central">② 数据</text>
+<text x="140" y="152" font-family="-apple-system, 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif" font-size="12" fill="#9a9a9a" dominant-baseline="central">三层分离，各自独立演进，互不覆盖</text>
+
+<rect x="64" y="170" width="152" height="40" rx="8" fill="#1e1e1e" stroke="#3a3a3a" stroke-width="0.5"/>
+<text x="140" y="185" font-family="-apple-system, 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif" font-size="13" font-weight="500" fill="#e8e8e8" text-anchor="middle" dominant-baseline="central">seed-*.json</text>
+<text x="140" y="200" font-family="-apple-system, 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif" font-size="12" fill="#9a9a9a" text-anchor="middle" dominant-baseline="central">公开 · 每天覆盖</text>
+
+<rect x="224" y="170" width="152" height="40" rx="8" fill="#1e1e1e" stroke="#3a3a3a" stroke-width="0.5"/>
+<text x="300" y="185" font-family="-apple-system, 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif" font-size="13" font-weight="500" fill="#e8e8e8" text-anchor="middle" dominant-baseline="central">letters.json</text>
+<text x="300" y="200" font-family="-apple-system, 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif" font-size="12" fill="#9a9a9a" text-anchor="middle" dominant-baseline="central">私有 · 生成一次复用</text>
+
+<rect x="384" y="170" width="152" height="40" rx="8" fill="#1e1e1e" stroke="#3a3a3a" stroke-width="0.5"/>
+<text x="460" y="185" font-family="-apple-system, 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif" font-size="13" font-weight="500" fill="#e8e8e8" text-anchor="middle" dominant-baseline="central">浏览器本地存储</text>
+<text x="460" y="200" font-family="-apple-system, 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif" font-size="12" fill="#9a9a9a" text-anchor="middle" dominant-baseline="central">私有 · 长期累积</text>
+
+<line x1="300" y1="222" x2="300" y2="246" stroke="#5a5a5a" stroke-width="1.5" marker-end="url(#ar)"/>
+
+<rect x="40" y="246" width="520" height="64" rx="10" fill="#161616" stroke="#3a3a3a" stroke-width="0.5"/>
+<text x="64" y="270" font-family="-apple-system, 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif" font-size="12" fill="#c41e3a" dominant-baseline="central">③ 构建</text>
+<text x="140" y="270" font-family="-apple-system, 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif" font-size="14" font-weight="500" fill="#e8e8e8" dominant-baseline="central">build.py 内联 → dist/index.html</text>
+<text x="140" y="292" font-family="-apple-system, 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif" font-size="12" fill="#9a9a9a" dominant-baseline="central">三道隐私闸门：白名单产物 · 语义审计 · CI 审计不过就不部署</text>
+
+<line x1="300" y1="310" x2="300" y2="346" stroke="#5a5a5a" stroke-width="1.5" marker-end="url(#ar)"/>
+
+<rect x="40" y="346" width="520" height="64" rx="10" fill="#161616" stroke="#3a3a3a" stroke-width="0.5"/>
+<text x="64" y="370" font-family="-apple-system, 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif" font-size="12" fill="#c41e3a" dominant-baseline="central">④ 交付</text>
+<text x="140" y="370" font-family="-apple-system, 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif" font-size="14" font-weight="500" fill="#e8e8e8" dominant-baseline="central">GitHub Pages 静态托管</text>
+<text x="140" y="392" font-family="-apple-system, 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif" font-size="12" fill="#9a9a9a" dominant-baseline="central">零成本 · 无运维 · PWA 可装到手机桌面，断网可用</text>
+
+<line x1="300" y1="410" x2="300" y2="446" stroke="#5a5a5a" stroke-width="1.5" marker-end="url(#ar)"/>
+
+<rect x="40" y="446" width="520" height="64" rx="10" fill="#161616" stroke="#3a3a3a" stroke-width="0.5"/>
+<text x="64" y="470" font-family="-apple-system, 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif" font-size="12" fill="#c41e3a" dominant-baseline="central">⑤ 使用</text>
+<text x="140" y="470" font-family="-apple-system, 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif" font-size="14" font-weight="500" fill="#e8e8e8" dominant-baseline="central">merge(seed, patch) → 渲染</text>
+<text x="140" y="492" font-family="-apple-system, 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif" font-size="12" fill="#9a9a9a" dominant-baseline="central">操作回写本地存储；重新采集或岗位下架都不影响进度</text>
+
+<rect x="40" y="546" width="520" height="48" rx="10" fill="none" stroke="#3a3a3a" stroke-width="0.5" stroke-dasharray="4 4"/>
+<text x="64" y="570" font-family="-apple-system, 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif" font-size="12" fill="#c41e3a" dominant-baseline="central">刻意不做</text>
+<text x="140" y="570" font-family="-apple-system, 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif" font-size="12" fill="#8a8a8a" dominant-baseline="central">后端 · 数据库 · 账号体系（数据量只有几十条，用不上）</text>
+</svg>
