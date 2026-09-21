@@ -803,6 +803,9 @@
           : '<div class="dim">未启用（本地文件模式）</div>') +
       '</div></div>' +
 
+      '<div class="slab">装到手机</div>' +
+      installSectionHTML() +
+
       '<div class="slab">备份与迁移</div>' +
       '<div class="card-acts">' +
         '<button class="btn primary" data-export-copy="1">复制数据</button>' +
@@ -962,6 +965,11 @@
     /* --- 顶栏 --- */
     if (e.target.closest('#btn-add')) { openAddPanel(); return; }
     if (e.target.closest('#btn-more')) { openMorePanel(); return; }
+    if (e.target.closest('#btn-install')) { e.preventDefault(); doInstall(); return; }
+
+    /* --- 装到手机提示条 --- */
+    if (e.target.closest('[data-install-go]')) { e.preventDefault(); doInstall(); return; }
+    if (e.target.closest('[data-install-x]')) { e.preventDefault(); skipInstall(); return; }
 
     /* --- Tab --- */
     var tabBtn = e.target.closest('.tabbar button');
@@ -1114,6 +1122,158 @@
     document.body.classList.add('has-update');
   }
 
+  /* ---------------------------------------------------------- 装到手机 */
+
+  var INSTALL_KEY = 'jobpipe.install.dismissed';
+  var deferredInstall = null;
+
+  /* 已经作为 App 跑起来时不再引导安装。
+     Android / 桌面走 display-mode；iOS Safari 不实现这套媒体查询，
+     只看 navigator.standalone。 */
+  function isStandalone() {
+    if (window.navigator.standalone === true) return true;
+    return !!(window.matchMedia &&
+      window.matchMedia('(display-mode: standalone)').matches);
+  }
+
+  function installDismissed() {
+    try { return localStorage.getItem(INSTALL_KEY) === '1'; } catch (err) { return false; }
+  }
+
+  function dismissInstall() {
+    /* 无痕模式下写不进去也没关系：本轮不提示就够了 */
+    try { localStorage.setItem(INSTALL_KEY, '1'); } catch (err) { /* 忽略 */ }
+  }
+
+  function dropInstallEntry() {
+    var btn = document.getElementById('btn-install');
+    if (btn) btn.remove();
+    var bar = document.querySelector('.installbar');
+    if (bar) bar.remove();
+  }
+
+  function showInstallEntry() {
+    if (isStandalone()) return;
+
+    /* 顶栏常驻入口：提示条关掉之后，想装还能从这儿进 */
+    if (!document.getElementById('btn-install')) {
+      var acts = document.querySelector('.topbar .acts');
+      if (acts) {
+        var btn = document.createElement('button');
+        btn.className = 'ibtn install';
+        btn.id = 'btn-install';
+        btn.type = 'button';
+        btn.title = '装到手机';
+        btn.setAttribute('aria-label', '装到手机');
+        btn.innerHTML = '<svg viewBox="0 0 20 20" aria-hidden="true">' +
+          '<path d="M10 3.2v8.6M6.4 8.4 10 12l3.6-3.6" fill="none" stroke="currentColor"' +
+          ' stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>' +
+          '<path d="M4.2 15.8h11.6" fill="none" stroke="currentColor" stroke-width="1.6"' +
+          ' stroke-linecap="round"/></svg>';
+        acts.insertBefore(btn, acts.firstChild);
+      }
+    }
+
+    /* 首次可安装时明说一次 —— 只留一个图标按钮，人是找不到的
+       （这正是用户反馈过的问题：浏览器菜单里翻不到入口）。 */
+    if (installDismissed() || document.querySelector('.installbar')) return;
+    var bar = document.createElement('div');
+    bar.className = 'installbar';
+    bar.innerHTML = '<span>装到手机，像 App 一样全屏打开</span>' +
+      '<button type="button" data-install-go="1">安装</button>' +
+      '<button type="button" class="x" data-install-x="1" aria-label="以后再说">✕</button>';
+    var app = document.querySelector('.app');
+    var view = document.getElementById('view');
+    if (app && view) app.insertBefore(bar, view);
+    else document.body.appendChild(bar);
+  }
+
+  /* 弹系统安装框。拿不到 deferred 说明这个浏览器不提供安装接口
+     （iOS Safari、微信内置浏览器都是），改为把手动方式直接摆到眼前。 */
+  function doInstall() {
+    var p = deferredInstall;
+    if (!p) {
+      openMorePanel();
+      toast('这个浏览器没有安装接口，按面板里的手动步骤装');
+      return;
+    }
+    deferredInstall = null;
+    p.prompt();
+    p.userChoice.then(function (res) {
+      if (res && res.outcome === 'accepted') {
+        dropInstallEntry();
+        toast('已装到主屏');
+      } else {
+        /* 用户明确拒绝：不留一个点了没反应的按钮，也不再弹提示条 */
+        dismissInstall();
+        dropInstallEntry();
+        toast('已跳过');
+      }
+    });
+  }
+
+  function skipInstall() {
+    dismissInstall();
+    var bar = document.querySelector('.installbar');
+    if (bar) bar.remove();
+  }
+
+  /* 各平台的手动路径。写具体到「点哪里」，不写「请安装到桌面」这种废话。 */
+  function installWords() {
+    var ua = navigator.userAgent || '';
+    if (/MicroMessenger/i.test(ua)) {
+      return '微信内置浏览器没有安装入口。点右上角「···」→「在浏览器中打开」，' +
+        '转到手机自带浏览器后，再用下面 Android 或 iPhone 的方式装。';
+    }
+    if (/iPhone|iPad|iPod/i.test(ua)) {
+      return 'iPhone 上只有 Safari 有这个入口（微信、Chrome for iOS 都没有）：' +
+        '用 Safari 打开本页 → 点底部中间的「分享」按钮 → 菜单里往下滑找' +
+        '「添加到主屏幕」→ 右上角「添加」。';
+    }
+    if (/Android/i.test(ua)) {
+      return '在 Chrome 里点右上角「···」，找「安装应用」，' +
+        '部分版本叫「添加到主屏幕」。菜单里暂时没有这一项时：' +
+        '在页面上多停留十几秒、点几下再打开菜单 —— ' +
+        'Chrome 要先确认你确实在用这个站才肯给入口；' +
+        '另外若以前点过一次「添加到主屏幕」，主屏上可能已经有图标了。';
+    }
+    return '在浏览器地址栏右侧找安装图标，或用「···」菜单里的「安装 求职作战台」。';
+  }
+
+  function installSectionHTML() {
+    if (isStandalone()) {
+      return '<div class="hint">已经在以 App 方式运行（独立窗口打开，无地址栏）。</div>';
+    }
+    if (deferredInstall) {
+      return '<div class="card-acts">' +
+        '<button class="btn primary" data-install-go="1">立刻安装</button>' +
+        '</div>' +
+        '<div class="hint">点上面的按钮会弹出系统安装确认框，确认即可。</div>';
+    }
+    return '<div class="hint">' + esc(installWords()) + '</div>';
+  }
+
+  function setupInstall() {
+    window.addEventListener('beforeinstallprompt', function (e) {
+      /* 不 preventDefault 的话 Chrome 会自己弹它那条迷你提示，与我们的入口重复；
+         统一由应用内的入口引导，位置和时机都可控。 */
+      e.preventDefault();
+      deferredInstall = e;
+      showInstallEntry();
+    });
+
+    window.addEventListener('appinstalled', function () {
+      deferredInstall = null;
+      dismissInstall();
+      dropInstallEntry();
+      toast('已装到主屏');
+    });
+
+    /* 已经装过时 Chrome 不再触发 beforeinstallprompt，
+       入口仍要收掉 —— 否则点了不会有任何反应。 */
+    if (isStandalone()) dropInstallEntry();
+  }
+
   function initPWA() {
     /* 双击打开（file://）时不注册：Service Worker 要求 http(s) 同源，
        在 file:// 下注册会直接抛错刷满 console；而且单文件本身就自包含，
@@ -1172,6 +1332,7 @@
     if (d) d.textContent = humanDate();
     bind();
     render();
+    setupInstall();
     initPWA();
     /* SW 就绪后补读一次版本（首次打开时 controller 还没挂上） */
     if ('serviceWorker' in navigator) {
@@ -1196,7 +1357,13 @@
         supported: !!sw,
         controlled: !!(sw && sw.controller),
         version: SW_VERSION,
-        updateShown: !!document.querySelector('.updatebar')
+        updateShown: !!document.querySelector('.updatebar'),
+        /* 安装入口的状态，给 e2e 断言用 */
+        standalone: isStandalone(),
+        installAvailable: !!deferredInstall,
+        installBarShown: !!document.querySelector('.installbar'),
+        installButtonShown: !!document.getElementById('btn-install'),
+        installDismissed: installDismissed()
       };
     }
   };

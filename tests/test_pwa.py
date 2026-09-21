@@ -5,11 +5,13 @@
 跑法：
     python -m pytest tests -q
 
-覆盖四块：
+覆盖五块：
   1. manifest  —— 字段合法、路径相对、图标尺寸与真实文件一致
   2. sw.js     —— 缓存以版本号为名、预缓存路径相对、不在 install 阶段抢跑
   3. 构建层    —— 只有可发布的 index.html 才带 PWA 资产；版本号由内容决定
   4. 发布闸门  —— 干净产物通过；混入个人数据必须失败
+  5. 安装入口  —— 应用内接管 beforeinstallprompt 的那套逻辑还在（行为由
+                  tools/e2e_install.py 在真浏览器里验）
 
 为什么值得单独一个文件：M4 的风险大多是「本地看着对、上线才发现不对」——
 绝对路径在本地文件系统下能打开，部署到子目录就 404；
@@ -414,3 +416,98 @@ def test_gate_rejects_unreplaced_sw_version(clean_publish, tmp_path):
 def test_gate_reports_missing_dir(tmp_path):
     errors, _ = gate.audit(tmp_path / "nope")
     assert errors and "目录不存在" in errors[0]
+
+
+# ---------------------------------------------------------------------------
+# 5. 安装入口
+#
+# 「菜单里没有安装应用」那次问题的防回归。
+# 站点可安装 ≠ 人装得上：入口长在浏览器菜单里，Chrome 要等它自己认定
+# 用户确实在用这个站才肯放出来，微信内置浏览器则根本没有这一项。
+# 所以改成应用内接管 beforeinstallprompt、自己给入口。
+# 下面这些断言守的就是那套接管逻辑还在，别被哪次重构悄悄删掉。
+# 真浏览器里的行为由 tools/e2e_install.py 验（25 项断言）。
+# ---------------------------------------------------------------------------
+
+APP_JS = ROOT / "src" / "app.js"
+STYLE = ROOT / "src" / "style.css"
+
+
+@pytest.fixture(scope="module")
+def app_js() -> str:
+    return APP_JS.read_text(encoding="utf-8")
+
+
+@pytest.fixture(scope="module")
+def style_css() -> str:
+    return STYLE.read_text(encoding="utf-8")
+
+
+def test_app_takes_over_beforeinstallprompt(app_js):
+    """必须接管事件：不 preventDefault 就是让浏览器弹它自己那条迷你提示，
+    位置和时机都不受控 —— 而那个入口正是用户翻不到的东西。"""
+    assert "addEventListener('beforeinstallprompt'" in app_js
+    handler = re.search(r"addEventListener\('beforeinstallprompt'.*?\n\s*\}\);",
+                        app_js, re.S)
+    assert handler, "找不到 beforeinstallprompt 的处理体"
+    body = handler.group(0)
+    assert "preventDefault()" in body
+    assert "deferredInstall = e" in body
+
+
+def test_app_calls_prompt_and_reads_user_choice(app_js):
+    assert ".prompt()" in app_js
+    assert "userChoice" in app_js
+    # 两种结果都要收尾：接受就撤掉入口，拒绝也不能留一个点了没反应的按钮
+    assert "outcome === 'accepted'" in app_js
+
+
+def test_install_entry_skipped_when_already_installed(app_js):
+    """已经装成 App 了还引导安装，等于让用户点一个必然失败的东西。"""
+    fn = re.search(r"function showInstallEntry\(\) \{(.*?)\n  \}", app_js, re.S)
+    assert fn, "找不到 showInstallEntry"
+    first_line = fn.group(1).strip().splitlines()[0]
+    assert "isStandalone()" in first_line, first_line
+    assert "display-mode: standalone" in app_js
+    assert "navigator.standalone" in app_js      # iOS Safari 不实现那套媒体查询
+
+
+def test_install_dismiss_is_persisted(app_js):
+    """关掉之后下次不许再弹 —— 否则每条入口都会变成骚扰。"""
+    assert "jobpipe.install.dismissed" in app_js
+    assert "localStorage.setItem(INSTALL_KEY" in app_js
+
+
+def test_manual_steps_cover_three_platforms(app_js):
+    """Android / iPhone / 微信 的路径完全不同，串一个就等于对那个平台没写。"""
+    words = re.search(r"function installWords\(\) \{(.*?)\n  \}", app_js, re.S)
+    assert words, "找不到 installWords"
+    body = words.group(1)
+    assert "MicroMessenger" in body and "在浏览器中打开" in body
+    assert "iPhone|iPad|iPod" in body and "添加到主屏幕" in body
+    assert "Android" in body and "安装应用" in body
+
+
+def test_install_state_exposed_to_e2e(app_js):
+    """tools/e2e_install.py 靠这些字段做断言；改名会让那个脚本静默失去意义。"""
+    for key in ("installAvailable", "installBarShown", "installButtonShown",
+                "installDismissed", "standalone"):
+        assert key + ":" in app_js, key
+
+
+def test_install_bar_has_styles(style_css):
+    assert ".installbar" in style_css
+    assert ".ibtn.install" in style_css
+
+
+def test_public_build_carries_install_entry(public_build):
+    html = public_build.read_text(encoding="utf-8")     # fixture 给的直接是 index.html
+    assert "beforeinstallprompt" in html
+    assert ".installbar" in html
+
+
+def test_install_e2e_script_exists():
+    """这套逻辑只有真浏览器跑得出来，脚本必须在，且要问浏览器要资格结论。"""
+    script = ROOT / "tools" / "e2e_install.py"
+    assert script.exists()
+    assert "getInstallabilityErrors" in script.read_text(encoding="utf-8")
