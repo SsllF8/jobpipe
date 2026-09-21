@@ -374,6 +374,19 @@ body.sheet-open .tabbar { display: none; }
   padding: 13px; font-size: 12.5px; line-height: 1.75; color: #c8c8c8;
   white-space: pre-wrap; word-break: break-word;
 }
+/* 采集层贴进来的原始 JD：默认折叠。JD 动辄几百行，全展开会把详情页撑到翻不到底 */
+.sheet details.jd summary {
+  font-size: 12px; color: var(--dim); cursor: pointer;
+  padding: 6px 0; list-style: none;
+}
+.sheet details.jd summary::-webkit-details-marker { display: none; }
+.sheet details.jd summary::before { content: "\25B8  "; }
+.sheet details.jd[open] summary::before { content: "\25BE  "; }
+.sheet details.jd pre {
+  margin: 0; background: var(--panel); border: 1px solid var(--line); border-radius: 10px;
+  padding: 13px; font-size: 12px; line-height: 1.7; color: #b4b4b4;
+  font-family: inherit; white-space: pre-wrap; word-break: break-word;
+}
 /* 行内的命令提示，如 python tools/gen_letter.py */
 code {
   font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;

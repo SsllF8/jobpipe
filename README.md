@@ -136,6 +136,29 @@ dist-publish/
    `statechange` 事件数为 `0`。
 2. **图标里那道红杠和「职」的末横糊在一起**，放大看像脏点 —— 直接删掉，一个字足够。
 
+### 8. 采集：不爬页面，只出清单 + 规则解析
+
+逐个爬招聘站有三重成本：**反爬**（BOSS / 猎聘有登录墙与风控）、**合规**（多数站点服务条款
+禁止批量抓取）、**维护**（页面一改版解析就失效）。用一个决定绕开全部三样 ——
+脚本**不抓任何页面**，只按各站公开的 URL 规则拼检索链接，剩下的交给浏览器。
+
+```
+tools/search_plan.py   20+ 渠道 × 岗位关键词 → 可点检索清单（dist/search-plan.html）
+         ↓  你点开、挑岗位、复制 JD
+tools/ingest_jd.py     正则解析 + 复用 score.py 打分 → 合并进新的 seed
+         ↓
+build.py               自动取 data/ 里最新一份 seed 内联
+```
+
+- **零反爬风险**：只生成 URL，浏览器里看到的和真人自己搜的完全一致
+- **零 AI 成本**：解析七八个字段用正则足够，结果还确定可测。AI 留给自荐信那一环
+- **零维护**：站点改版最多让某条链接失效，不会让整条链路崩掉
+- **认不出就留空**：缺哪个字段会在报告里点名，宁可空着也不猜 ——
+  猜错的公司名会污染之后积累的所有投递记录
+
+「20+ 渠道」不是口号，有测试守着：`tools/channels.json` 少于 20 条会直接测试失败，
+免得日后为了省事把渠道悄悄砍掉。
+
 ## 快速开始
 
 ```bash
@@ -153,6 +176,19 @@ python build.py --publish
 
 # 发布闸门：确认产物里没有个人数据（本地跑一次就不必等 CI 报错）
 python tools/check_public.py
+
+# 采集 ① 生成检索清单：20+ 渠道 × 岗位关键词的可点链接 → dist/search-plan.html
+python tools/search_plan.py
+python tools/search_plan.py --open                                # 生成后自动打开
+python tools/search_plan.py --keywords "AI应用开发,大模型应用"      # 临时换关键词
+python tools/search_plan.py --engine baidu                        # 换搜索引擎做限定检索
+
+# 采集 ② 把挑中的岗位 JD 贴回来看板（规则解析，零 AI 调用）
+python tools/ingest_jd.py --list-channels                         # 先看渠道名怎么拼
+python tools/ingest_jd.py --file jd.txt --channel 猎聘 \
+    --company "某某科技有限公司" --title "AI应用开发工程师" --url "https://…"
+python tools/ingest_jd.py --file jd.txt --dry-run                 # 只看解析结果，不写文件
+python tools/ingest_jd.py --text "…" --company X --title Y        # 直接贴一段
 
 # 生成 PWA 图标（改了图标设计才需要；产物不依赖 Playwright）
 python tools/make_icons.py --preview
@@ -223,14 +259,20 @@ Pages 已启用（Source = **GitHub Actions**），线上地址：<https://ssllf
 │   ├── manifest.webmanifest  PWA 清单（start_url / scope 全用相对路径）
 │   ├── icons/          4 张图标 PNG（由 tools/make_icons.py 生成，随仓库提交）
 │   ├── score.py        纯规则匹配打分（零 AI）
+│   ├── seed_store.py   种子定位：取 data/ 里最新的 seed-YYYY-MM-DD.json
 │   └── profile.json    技能画像与权重（打分口径的唯一来源）
 ├── data/
-│   ├── seed-2026-09-17.json   17 个真实在招岗位（人工核实）
+│   ├── seed-2026-09-17.json   初始岗位池：17 个真实在招岗位（人工核实）
+│   ├── seed-YYYY-MM-DD.json   采集产出的新岗位池（ingest_jd.py 写，构建自动取最新一份）
+│   ├── search-plan-*.md       检索清单纯文本版（可点的 HTML 版在 dist/）
 │   ├── letters.json           自荐信缓存，按 job_id 索引（由 gen_letter.py 写）
 │   ├── demo-state.json        虚构演示状态，仅供 --demo
 │   └── state.json             你的导出存档（已 gitignore）
 ├── build.py            内联构建，含个人数据防误发布护栏 + PWA 资产产出
 ├── tools/
+│   ├── channels.json   20+ 渠道清单（名称 / 类别 / 域名 / 站内搜索 URL）
+│   ├── search_plan.py  采集①：展开「关键词 × 城市 × 渠道」→ 可点检索清单
+│   ├── ingest_jd.py    采集②：JD 文本 → 规则解析 + 打分 → 合并进新 seed
 │   ├── gen_letter.py   自荐信生成：简历 + 岗位 → DeepSeek → letters.json
 │   ├── make_icons.py   用 Playwright 渲染 SVG → PNG 图标（不引入绘图库依赖）
 │   ├── check_public.py 发布闸门：审计产物不含个人数据、PWA 资产齐备
@@ -239,18 +281,18 @@ Pages 已启用（Source = **GitHub Actions**），线上地址：<https://ssllf
 │   ├── e2e.py          Playwright 端到端行为验证（点击→存储→刷新→仍在）
 │   └── e2e_pwa.py      Playwright PWA 验证（注册→离线→升级提示）
 ├── .github/workflows/deploy.yml   测试 → 构建 → 审计 → 部署 Pages
-└── tests/              95 项测试
+└── tests/              148 项测试（conftest.py 把种子钉在初始那份，采集不干扰测试）
 ```
 
 ## 测试
 
 ```bash
-python -m pytest       # 95 passed
+python -m pytest       # 148 passed
 python tools/e2e.py    # 2 环境 × 26 项断言
 python tools/e2e_pwa.py  # 25 项断言
 ```
 
-单元测试分六层：
+单元测试分七层：
 
 - **数据层** —— id 唯一、字段完整、状态与分档合法、每个岗位都有可解释的匹配理由
 - **算法层** —— 打分确定性、值域、维度权重不越界、薪资解析、人工 S 级不被算法筛掉、
@@ -263,6 +305,9 @@ python tools/e2e_pwa.py  # 25 项断言
 - **PWA 层** —— manifest 字段与路径、图标声明尺寸**与 PNG 实际像素逐一对齐**、
   SW 处理器齐全、不在 `install` 阶段抢跑、导航走 network-first、
   只有可发布产物带 PWA 资产、版本号随内容变、发布闸门各类泄漏都能拦下
+- **采集层** —— 渠道清单必须 ≥20 条且有类别、无域名的渠道不能生成 `site:` 空查询、
+  链接全部 URL 编码、清单页零外链零请求、JD 解析（薪资 / 门槛 / 学历 / 地点 / 链接 / 公司**全称**）、
+  认不出的字段留空而不是瞎猜、重复岗位被拦下、生成的匹配理由真的取自打分明细
 
 `tools/e2e.py` 是 M2 加的关键一环。它驱动真实浏览器做完整流程，核心断言只有一条：
 
@@ -306,7 +351,7 @@ localStorage 的行为不同，不能想当然（实测两者都可用，但这�
 - [x] **M2** 状态流转 + 跟进计划 + 备注与时间线 + 手动新增 + 导入导出
 - [x] **M3** 自荐信生成（DeepSeek）+ 缓存 + 一键复制 + 公开产物排除
 - [x] **M4** PWA（可安装 + 离线 + 版本化缓存 + 升级提示）+ CI + Pages 部署 + 发布闸门
-- [ ] **M5** 架构图 + 岗位采集自动化（多来源检索，每天 1 次）
+- [x] **M5** 架构图（`docs/architecture.svg`）+ 岗位采集（检索清单 + JD 规则录入）
 
 ## 说明
 

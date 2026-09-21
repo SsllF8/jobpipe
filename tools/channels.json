@@ -1,0 +1,35 @@
+{
+  "version": 1,
+  "note": "检索清单的渠道来源。本文件只用于生成链接，不抓取任何页面 —— 反爬与合规风险为零。site_search 为空表示该站点没有稳定的公开搜索 URL，只用「全网 site: 检索」覆盖。{q} 会被替换成 URL 编码后的岗位关键词。",
+  "channels": [
+    { "name": "猎聘", "category": "综合平台", "domain": "liepin.com", "site_search": "https://www.liepin.com/zhaopin/?key={q}&dqs=020", "note": "岗位量最大；S 级百联全渠道来自这里" },
+    { "name": "BOSS直聘", "category": "综合平台", "domain": "zhipin.com", "site_search": "https://www.zhipin.com/web/geek/job?query={q}&city=101020100", "note": "回复最快，适合直接聊 HR" },
+    { "name": "智联招聘", "category": "综合平台", "domain": "zhaopin.com", "site_search": "https://sou.zhaopin.com/?kw={q}&jl=538", "note": "老牌综合站，中小企业多" },
+    { "name": "前程无忧", "category": "综合平台", "domain": "51job.com", "site_search": "https://we.51job.com/pc/search?keyword={q}&jobArea=020000", "note": "传统企业转 AI 的岗位常在这里" },
+    { "name": "拉勾", "category": "综合平台", "domain": "lagou.com", "site_search": "https://www.lagou.com/wn/jobs?kd={q}&city=%E4%B8%8A%E6%B5%B7", "note": "互联网氛围浓，认 GitHub" },
+
+    { "name": "应届生求职网", "category": "应届/校招", "domain": "yingjiesheng.com", "site_search": "https://s.yingjiesheng.com/search.php?word={q}", "note": "部分岗位接受往届" },
+    { "name": "实习僧", "category": "应届/校招", "domain": "shixiseng.com", "site_search": "https://www.shixiseng.com/interns?keyword={q}&city=%E4%B8%8A%E6%B5%B7", "note": "实习与校招，转正岗也在此招" },
+    { "name": "牛客网", "category": "应届/校招", "domain": "nowcoder.com", "site_search": "", "note": "面经与内推帖质量高" },
+    { "name": "海投网", "category": "应届/校招", "domain": "haitou.cc", "site_search": "", "note": "宣讲会与校招日历" },
+
+    { "name": "全职招聘网", "category": "中小企业", "domain": "quanzhi.com", "site_search": "", "note": "S 级辽宁鑫锡来自这里；门槛相对友好" },
+    { "name": "中国中小企业信息网", "category": "中小企业", "domain": "sme.gov.cn", "site_search": "", "note": "官方平台，中小企业直招" },
+
+    { "name": "上海人才网", "category": "上海本地", "domain": "shrc.com.cn", "site_search": "", "note": "本地岗位密度高" },
+    { "name": "乐业上海（市人社局）", "category": "上海本地", "domain": "jobs.rsj.sh.gov.cn", "site_search": "", "note": "公共招聘，国企与事业单位多" },
+    { "name": "上海国资招聘", "category": "上海本地", "domain": "shgzw.gov.cn", "site_search": "", "note": "国企稳定，按批次放岗" },
+    { "name": "张江人才", "category": "上海本地", "domain": "zhangjiang.net", "site_search": "", "note": "浦东 AI 企业集中区" },
+
+    { "name": "V2EX 酷工作", "category": "AI 技术垂直", "domain": "v2ex.com", "site_search": "https://www.v2ex.com/go/jobs", "note": "技术岗密度最高，远程与外包也在这发" },
+    { "name": "掘金", "category": "AI 技术垂直", "domain": "juejin.cn", "site_search": "https://juejin.cn/search?query={q}", "note": "技术团队常在此直发招聘贴" },
+    { "name": "即刻", "category": "AI 技术垂直", "domain": "okjike.com", "site_search": "", "note": "AI 创业者活跃，非公开岗位多" },
+    { "name": "机器之心", "category": "AI 技术垂直", "domain": "jiqizhixin.com", "site_search": "", "note": "AI 公司招聘专版" },
+    { "name": "GitHub", "category": "AI 技术垂直", "domain": "github.com", "site_search": "", "note": "搜招聘 issue，也可反查目标公司的技术栈" },
+
+    { "name": "脉脉", "category": "内推/猎头", "domain": "maimai.cn", "site_search": "", "note": "非公开岗位，适合找内推" },
+    { "name": "LinkedIn", "category": "内推/猎头", "domain": "linkedin.com", "site_search": "", "note": "外企与出海团队" },
+
+    { "name": "目标公司官网", "category": "企业直招", "domain": "", "site_search": "", "note": "跳过中介，信息最准；用「公司名 + 招聘」检索" }
+  ]
+}

@@ -66,6 +66,7 @@ PUBLISH = ROOT / "dist-publish"
 
 sys.path.insert(0, str(SRC))
 from score import load_json, score_all  # noqa: E402
+from seed_store import latest_seed  # noqa: E402
 
 
 TOKENS = {
@@ -78,7 +79,9 @@ TOKENS = {
     "pwa": "<!--__PWA_HEAD__-->",
 }
 
-SEED = DATA / "seed-2026-09-17.json"
+# 岗位池自动取 data/ 里最新的 seed-YYYY-MM-DD.json（采集脚本每天产出新的一份）。
+# 不写死文件名，否则采集脚本换了日期、构建还在读旧文件，链路就断了。
+SEED = latest_seed(DATA)
 DEMO_STATE = DATA / "demo-state.json"
 LOCAL_STATE = DATA / "state.json"
 LETTERS = DATA / "letters.json"
@@ -248,8 +251,12 @@ def emit_pwa(out_dir: Path, version: str, manifest: str, sw: str) -> list[str]:
 
 
 def build(demo: bool = False, out: Path | None = None, state_path: Path | None = None,
-          seed_path: Path = SEED, letters_path: Path = LETTERS,
+          seed_path: Path | None = None, letters_path: Path = LETTERS,
           out_dir: Path | None = None, publish: bool = False) -> Path:
+    # 种子默认取 data/ 里最新的一份（采集脚本每天产出新的），
+    # 运行时可覆盖 —— 测试靠它把种子钉在仓库自带的那份上，
+    # 免得「今天采集过」就让断言 17 个岗位的老测试变红。
+    seed_path = Path(seed_path) if seed_path else SEED
     profile = load_json(SRC / "profile.json")
     payload = load_json(seed_path)
     records = payload["applications"]
@@ -378,7 +385,7 @@ def main() -> None:
     parser = argparse.ArgumentParser(description="内联构建单文件看板")
     parser.add_argument("--demo", action="store_true", help="叠加虚构示例状态，用于演示/截图")
     parser.add_argument("--state", help="要内联的用户 state.json（个人版）")
-    parser.add_argument("--seed", help="岗位种子数据，默认 data/seed-2026-09-17.json")
+    parser.add_argument("--seed", help="岗位种子数据，默认自动取 data/ 里最新的 seed-YYYY-MM-DD.json")
     parser.add_argument("--letters", help="自荐信缓存，默认 data/letters.json")
     parser.add_argument("--out", help="输出路径")
     parser.add_argument("--publish", action="store_true",

@@ -46,7 +46,12 @@ DATA = ROOT / "data"
 ENV_FILE = ROOT / ".env"
 LETTERS_FILE = DATA / "letters.json"
 PROMPT_FILE = ROOT / "tools" / "prompts" / "cover_letter.md"
-SEED_FILE = DATA / "seed-2026-09-17.json"
+
+sys.path.insert(0, str(ROOT / "src"))
+from seed_store import latest_seed  # noqa: E402
+
+# 与 build.py 同一套规则：取 data/ 里最新的 seed-YYYY-MM-DD.json
+SEED_FILE = latest_seed(DATA)
 
 RESUMES = {
     "A": PROJECT / "01-resume" / "src" / "刘展博-AI应用开发-A版-20260917.md",
@@ -286,7 +291,7 @@ def main() -> None:
         sys.stdout.reconfigure(encoding="utf-8")
 
     parser = argparse.ArgumentParser(description="生成 S 级岗位自荐信（DeepSeek）")
-    parser.add_argument("--seed", default=str(SEED_FILE), help="岗位数据，默认 seed-2026-09-17.json")
+    parser.add_argument("--seed", default=str(SEED_FILE), help="岗位数据，默认自动取 data/ 里最新的 seed-YYYY-MM-DD.json")
     parser.add_argument("--letters", default=str(LETTERS_FILE), help="自荐信缓存文件")
     parser.add_argument("--job", action="append", help="只处理指定 id，可重复传")
     parser.add_argument("--tier", default="S", help="自动挑选的分档，默认 S")

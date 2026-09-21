@@ -497,6 +497,9 @@
     var tier = displayTier(j);
     var score = displayScore(j);
     var arch = j._archived;
+    /* 采集层贴进来的原始 JD（只有 tools/ingest_jd.py 录入的岗位才有）。
+       它同时是打分引擎的首选匹配文本，值得让人能点开回看。 */
+    var jd = (j.jd_text || '').trim();
 
     var list = function (arr, cls) {
       return (arr || []).length
@@ -552,6 +555,11 @@
       list(j.why_match, 'hit') +
       '<div class="slab">你的能力缺口<span class="count">' + ((j.gaps || []).length) + ' 条</span></div>' +
       list(j.gaps, 'gap') +
+      (jd
+        ? '<div class="slab">原始 JD<span class="count">' + jd.length + ' 字</span></div>' +
+          '<details class="jd"><summary>展开查看录入时的原文</summary><pre>' +
+          esc(jd) + '</pre></details>'
+        : '') +
       (letter
         ? '<div class="slab">自荐信<span class="count">' + letter.replace(/\s/g, '').length + ' 字</span></div>' +
           '<div class="letter">' + esc(letter) + '</div>' +
