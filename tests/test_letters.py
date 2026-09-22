@@ -283,9 +283,14 @@ def test_real_letters_reach_publishable_artifact(tmp_path):
     html = out.read_text(encoding="utf-8")
 
     payload = inlined_data(html)
+    seed_ids = {r.get("id") for r in payload["applications"]}
+    # 只核对**能对上当前岗位池**的那些：conftest 把种子钉在初始那份，
+    # 而 letters.json 是活的（新岗位的自荐信会先出现在这里，岗位池要等采集录入才跟上）。
+    # 两者对不上是正常的，构建时会打警告并忽略；这里守的是"匹配上的没被静默丢掉"。
+    expect = {k: v for k, v in real.items() if k in seed_ids}
     filled = [r for r in payload["applications"] if (r.get("cover_letter") or "").strip()]
-    assert len(filled) == len(real), f"应内联 {len(real)} 封，实际 {len(filled)} 封"
-    for job_id, text in real.items():
+    assert len(filled) == len(expect), f"岗位池里匹配上的应内联 {len(expect)} 封，实际 {len(filled)} 封"
+    for job_id, text in expect.items():
         assert text[:20] in html, f"{job_id} 的自荐信没进公开产物，手机上就复制不到"
 
 
