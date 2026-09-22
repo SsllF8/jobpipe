@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updated_at": "2026-09-21T19:00:48+08:00",
+  "updated_at": "2026-09-22T17:22:00+08:00",
   "model": "deepseek-chat",
   "letters": {
     "liaoning-xinxi-ae": {
@@ -43,6 +43,34 @@
       "usage": {
         "prompt_tokens": 3230,
         "completion_tokens": 287
+      }
+    },
+    "auto-078e1b83": {
+      "text": "您好，我是刘展博，应聘上海喜啦科技的AI应用开发工程师岗位。\n\n我做过两个直接对口的项目。一是企业知识库问答系统，用LangChain加ChromaDB搭RAG链路，从文档分块向量化到检索生成全部跑通，相似度阈值和Top-K可配置，平衡召回与精度。二是AI智能客服系统，在RAG问答外补了人工接管机制，AI置信度不足时无缝转人工，对话、用户、知识库三类数据落SQLite，并做满意度等运营指标可视化，形成闭环。\n\nAgent编排上，我把初版工作流平台的线性管道引擎重写成真正的DAG调度器，用Kahn算法做拓扑排序、DFS三色标记做环检测，同层节点用ThreadPoolExecutor并发执行，节点类型从10类扩到16类，支持条件分支、循环和聚合。为验证改动，我独立做了FlowEval，面向多节点流水线的评测工具，失败用例可归因到具体节点，通过率、P95延迟、成本、红线零容忍任一不达标即退出码1，可接入CI拦发布。\n\n工程习惯上我看重闭环，agentflow和jobpipe都做了Docker容器化与GitHub Actions流水线，累计250多项自动化测试。\n\n我的项目均独立完成，从需求、架构到部署一手落地，上手新工具不慢。我目前还缺一段正式团队协作经验，但可随时到岗面聊。电话17585074748，邮箱924899361@qq.com，作品集和源码在ssllf8.github.io。",
+      "company": "上海喜啦科技有限公司",
+      "title": "AI应用开发工程师（ToB AI陪伴式机器人）",
+      "model": "deepseek-chat",
+      "resume": "A",
+      "generated_at": "2026-09-22 17:21",
+      "chars": 600,
+      "compressed": true,
+      "usage": {
+        "prompt_tokens": 4576,
+        "completion_tokens": 678
+      }
+    },
+    "auto-30f7324f": {
+      "text": "您好，我是刘展博，应聘杉数科技 AI Agent 研发工程师岗位。\n\n我做过两个直接对口的项目。一是企业知识库问答系统，用 LangChain + ChromaDB 搭 RAG 链路，支持 PDF、TXT、Markdown 多格式导入与分块向量化，检索-生成全流程跑通，相似度阈值和 Top-K 可配置。二是 agentflow，DAG 工作流编排引擎，用 Kahn 算法做拓扑排序、DFS 三色标记法做环检测，同层节点用 ThreadPoolExecutor 并发执行，SQLite 记录节点级状态支持断点续跑，节点类型 16 类，已用 Docker 容器化，19 项 pytest 测试在本地和容器内都通过。\n\n我还写了 FlowEval，评测多节点 Agent 流水线。10 个评分器覆盖精确匹配、JSON 校验、拒答红线、延迟、成本等维度，失败用例自动归因到具体节点，上线判定不达标以退出码 1 接入 CI 拦截发布。实测智能客服 v1 基线 14/14 通过，v2 注入知识库缺陷后跌到 71.4%，归因指向检索节点。提示词工程和向量库调参是我日常在做的事。\n\n高并发后端我目前还在补，多线程调度、SQLite WAL 模式处理并发写入已在项目里实践过，上手速度不慢。\n\n电话 17585074748，邮箱 924899361@qq.com，作品集和源码在 ssllf8.github.io。人在上海，可随时到岗面聊。",
+      "company": "杉数科技（上海）有限公司",
+      "title": "AI Agent 研发工程师",
+      "model": "deepseek-chat",
+      "resume": "A",
+      "generated_at": "2026-09-22 17:22",
+      "chars": 614,
+      "compressed": true,
+      "usage": {
+        "prompt_tokens": 4639,
+        "completion_tokens": 713
       }
     }
   }
