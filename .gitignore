@@ -8,12 +8,18 @@ data/state.json
 data/applications.json
 data/exports/
 
-# 自荐信正文本点名了投递的公司，同样反映个人投递行为，不进公开仓库
-# （构建产物里也只有演示版/个人版才内联它，见 build.py 的 expose_letters）
-data/letters.json
+# 自荐信正文 data/letters.json 于 2026-09-22 起**故意提交**：
+# CI 是从仓库 clone 后构建的，它不在仓库里线上就永远拿不到正文，
+# 手机上也就复制不到。别再把它加回 .gitignore。
+# 要出一份不带自荐信的干净版（发给招聘方看），用 build.py --no-letters。
 
 # 构建产物（由 build.py 生成，可重新构建）
 dist/
+
+# 本地跑脚本的临时输出 —— 曾经被 git add -A 一起带进仓库
+.daily.txt
+.pytest_out.txt
+.*_out.txt
 
 # 可发布产物（build.py --publish 生成，CI 部署用）
 dist-publish/

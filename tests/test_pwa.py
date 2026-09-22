@@ -344,22 +344,15 @@ def test_gate_rejects_extra_files(clean_publish, tmp_path):
     assert any("不该发布的内容" in e for e in errors), errors
 
 
-def test_gate_rejects_inlined_letters(clean_publish, tmp_path):
-    """产物里若出现自荐信正文，闸门必须报错。"""
-    target = tmp_path / "leak"
-    target.mkdir()
-    for p in clean_publish.rglob("*"):
-        if p.is_file():
-            dest = target / p.relative_to(clean_publish)
-            dest.parent.mkdir(parents=True, exist_ok=True)
-            dest.write_bytes(p.read_bytes())
+def test_gate_allows_inlined_letters(clean_publish):
+    """带自荐信的产物必须能通过闸门（2026-09-22 起自荐信是主动公开的）。
 
-    html = (target / "index.html").read_text(encoding="utf-8")
-    html = html.replace('"cover_letter": ""', '"cover_letter": "尊敬的招聘负责人，我是刘展博…"', 1)
-    (target / "index.html").write_text(html, encoding="utf-8")
-
-    errors, _ = gate.audit(target)
-    assert any("自荐信正文" in e for e in errors), errors
+    这条以前叫 test_gate_rejects_inlined_letters，断言方向相反。反转的原因：
+    不内联自荐信，手机上看板里就只有一句「还没生成」，而投递恰恰要在手机上复制。
+    用户权衡后选择公开正文。闸门继续守的是投递记录（state）与密钥 —— 那两样才不可挽回。
+    """
+    errors, _ = gate.audit(clean_publish)
+    assert not errors, f"自荐信已改为主动公开，闸门不该再拦：{errors}"
 
 
 def test_gate_rejects_local_state(clean_publish, tmp_path):

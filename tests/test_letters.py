@@ -227,17 +227,31 @@ def test_demo_build_inlines_letters(tmp_path):
     assert "演示用自荐信正文" in out.read_text(encoding="utf-8")
 
 
-def test_publishable_build_excludes_letters(tmp_path):
-    """可发布的 index.html 不能带自荐信 —— 正文点名了投递的公司。"""
-    letters = write_letters(tmp_path / "letters.json", {"liaoning-xinxi-ae": {"text": "不该出现在公开产物里"}})
+def test_publishable_build_inlines_letters(tmp_path):
+    """可发布的 index.html 要带上自荐信 —— 手机上复制投递全靠它（2026-09-22 起）。"""
+    letters = write_letters(tmp_path / "letters.json", {"liaoning-xinxi-ae": {"text": "公开版自荐信正文"}})
     out = tmp_path / "index.html"
     builder.build(demo=False, out=out, letters_path=letters,
                   state_path=empty_state(tmp_path / "state.json"))
 
     html = out.read_text(encoding="utf-8")
-    assert "不该出现在公开产物里" not in html
+    assert "公开版自荐信正文" in html
     payload = inlined_data(html)
     assert len(payload["applications"]) == 17, "岗位数据本身必须还在"
+
+
+def test_publishable_build_can_opt_out_letters(tmp_path):
+    """--no-letters 出干净版：发给招聘方看时不暴露在投哪些公司。"""
+    letters = write_letters(tmp_path / "letters.json", {"liaoning-xinxi-ae": {"text": "不该出现在干净版里"}})
+    out = tmp_path / "index.html"
+    builder.build(demo=False, out=out, letters_path=letters,
+                  state_path=empty_state(tmp_path / "state.json"),
+                  no_letters=True)
+
+    html = out.read_text(encoding="utf-8")
+    assert "不该出现在干净版里" not in html
+    payload = inlined_data(html)
+    assert len(payload["applications"]) == 17, "干净版也要保留完整岗位池"
     assert all(not (r.get("cover_letter") or "").strip() for r in payload["applications"])
 
 
@@ -250,8 +264,13 @@ def test_personal_build_inlines_letters(tmp_path):
     assert "个人版自荐信" in out.read_text(encoding="utf-8")
 
 
-def test_real_letters_never_reach_publishable_artifact(tmp_path):
-    """回归防线：真实 letters.json 存在时，公开产物也不得泄漏。"""
+def test_real_letters_reach_publishable_artifact(tmp_path):
+    """回归防线（2026-09-22 方向反转）：真实自荐信必须真的进了公开产物。
+
+    以前这条叫 test_real_letters_never_reach_...，断言方向相反 ——
+    那时怕"暴露在投哪些公司"，代价是手机上看不到正文、没法复制投递。
+    用户在权衡后选择了公开，所以现在要守的是"正文真的进去了"。
+    """
     if not builder.LETTERS.exists():
         pytest.skip("还没生成过自荐信")
     real = builder.load_letters(builder.LETTERS)
@@ -264,9 +283,10 @@ def test_real_letters_never_reach_publishable_artifact(tmp_path):
     html = out.read_text(encoding="utf-8")
 
     payload = inlined_data(html)
-    assert all(not (r.get("cover_letter") or "").strip() for r in payload["applications"])
+    filled = [r for r in payload["applications"] if (r.get("cover_letter") or "").strip()]
+    assert len(filled) == len(real), f"应内联 {len(real)} 封，实际 {len(filled)} 封"
     for job_id, text in real.items():
-        assert text[:20] not in html, f"{job_id} 的自荐信泄漏进了公开产物"
+        assert text[:20] in html, f"{job_id} 的自荐信没进公开产物，手机上就复制不到"
 
 
 def test_build_warns_about_orphan_letters(tmp_path, capsys):

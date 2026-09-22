@@ -39,9 +39,12 @@ Service Worker 必须与页面同源、且**不能被内联**（浏览器强制�
     state     ← 浏览器 localStorage   你的操作记录（私有）
     merge(seed, letters, state) → 页面数据
 
-**自荐信为什么不进公开版**：正文里点名了投递的公司（"应聘辽宁鑫锡的……岗位"），
-属于个人投递行为，会暴露你在投哪些公司。所以只有演示版与个人版会内联 letters，
-`index.html` 一律不含——文件名叫 index.html 就自动排除，不需要你记得加参数。
+**自荐信进不进公开版（2026-09-22 改了口径）**：原先是"不进" —— 正文点名了投递的公司
+（"应聘辽宁鑫锡的……岗位"），怕暴露在投哪些公司。但代价是**手机上看不到正文**，
+而投递恰恰要在手机上复制发出去。权衡后改为**默认内联**：CI 是从仓库 clone 后构建的，
+letters.json 若不在仓库里，CI 就永远读不到，线上就会一直显示"还没生成"。
+代价是明确的：这几封定制自荐信会随站点一起可访问。
+要出一份不带自荐信的干净版（例如发给招聘方看的），加 `--no-letters`。
 
 公开版内联的 state 为空，页面启动后用 localStorage 里的数据；
 个人版内联 state 作为**首次打开时的初始值**（仅当本地为空才采纳），
@@ -252,7 +255,8 @@ def emit_pwa(out_dir: Path, version: str, manifest: str, sw: str) -> list[str]:
 
 def build(demo: bool = False, out: Path | None = None, state_path: Path | None = None,
           seed_path: Path | None = None, letters_path: Path = LETTERS,
-          out_dir: Path | None = None, publish: bool = False) -> Path:
+          out_dir: Path | None = None, publish: bool = False,
+          no_letters: bool = False) -> Path:
     # 种子默认取 data/ 里最新的一份（采集脚本每天产出新的），
     # 运行时可覆盖 —— 测试靠它把种子钉在仓库自带的那份上，
     # 免得「今天采集过」就让断言 17 个岗位的老测试变红。
@@ -295,7 +299,9 @@ def build(demo: bool = False, out: Path | None = None, state_path: Path | None =
 
     # 合并自荐信：生成层（letters.json）→ 展示字段 cover_letter
     # 自荐信正文点名了投递的公司，属于个人投递行为，因此不进可公开的 index.html
-    expose_letters = demo or has_state or out.name != "index.html"
+    # 默认内联（含可发布产物），理由见文件头「自荐信进不进公开版」。
+    # 不再按"输出文件名"隐式判断：那种规则靠猜，而且 CI 读不到 letters.json 就永远没正文。
+    expose_letters = not no_letters
     letters = load_letters(letters_path) if expose_letters else {}
     seed_ids = {rec.get("id") for rec in records}
     orphans = sorted(set(letters) - seed_ids)
@@ -387,6 +393,8 @@ def main() -> None:
     parser.add_argument("--state", help="要内联的用户 state.json（个人版）")
     parser.add_argument("--seed", help="岗位种子数据，默认自动取 data/ 里最新的 seed-YYYY-MM-DD.json")
     parser.add_argument("--letters", help="自荐信缓存，默认 data/letters.json")
+    parser.add_argument("--no-letters", action="store_true",
+                        help="不内联自荐信（出一份干净版，发给招聘方看时使用）")
     parser.add_argument("--out", help="输出路径")
     parser.add_argument("--publish", action="store_true",
                         help=f"只产出可发布版本（清空并重建 {PUBLISH.name}/），供 CI 部署")
@@ -404,6 +412,7 @@ def main() -> None:
         letters_path=Path(args.letters) if args.letters else LETTERS,
         out_dir=Path(args.out_dir) if args.out_dir else None,
         publish=args.publish,
+        no_letters=args.no_letters,
     )
 
 

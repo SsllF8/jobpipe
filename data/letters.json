@@ -1,0 +1,49 @@
+{
+  "version": 1,
+  "updated_at": "2026-09-21T19:00:48+08:00",
+  "model": "deepseek-chat",
+  "letters": {
+    "liaoning-xinxi-ae": {
+      "text": "您好，我是刘展博，应聘辽宁鑫锡大模型AI应用开发工程师岗位。\n\n三个和JD直接对得上的项目。企业知识库问答系统用LangChain加ChromaDB搭RAG架构，支持PDF、TXT、Markdown多格式导入与分块向量化，检索生成链路完整，相似度阈值和Top-K可配置。AI工作流自动化平台用纯Python手写轻量引擎，用Kahn算法做DAG拓扑排序和环检测，支持条件分支、循环、代码执行等9类节点，变量上下文传递和断点续跑都跑通，对应多智能体编排和自动化工作流。AI智能客服系统做了5页面Streamlit应用，AI置信度不足时无缝转人工，形成问答、接管、满意度回收闭环，对应人机协同。我还手写过SQL查询引擎，Tokenizer加递归下降Parser，B+树索引精确查找O(log n)，NL2SQL这类数据库操作有底层把握。\n\n缺口一句：AutoGen和LangGraph还没实际动手，目前用LangChain，但工作流引擎和Agent编排机制自己实现过一遍，换框架上手不慢。\n\n六个开源项目源码在ssllf8.github.io。电话17585074748，邮箱924899361@qq.com，随时可到岗面聊。",
+      "company": "辽宁鑫锡软件有限公司",
+      "title": "大模型AI应用开发工程师（AE）",
+      "model": "deepseek-chat",
+      "resume": "A",
+      "generated_at": "2026-09-21 18:59",
+      "chars": 510,
+      "compressed": true,
+      "usage": {
+        "prompt_tokens": 3596,
+        "completion_tokens": 560
+      }
+    },
+    "bailian-ai": {
+      "text": "您好，我是刘展博，应聘百联全渠道电子商务有限公司AI应用开发工程师岗位。\n\n近半年我独立完成6个AI方向个人项目。企业知识库问答系统基于LangChain + ChromaDB搭建RAG链路，支持多格式文档分块向量化，检索-生成全流程和相似度阈值、Top-K参数都可配置；AI智能客服系统在此基础上加入人工接管机制，用SQLite持久化对话与知识库数据，matplotlib做运营指标可视化，形成完整闭环；AI工作流自动化平台用纯Python手写引擎，Kahn算法实现DAG拓扑排序与环检测，支持LLM调用、条件分支、循环等9类节点，非技术用户可直接复用模板。\n\nPython是我的主力语言，Java、SQL、Git、RESTful API都有实际项目支撑，FastAPI和Streamlit也一直在用。此前在上海云抖文化做AI美工与策划运营，接触过品牌营销和社交媒体内容生产，对零售电商业务语境不算陌生，JD提到的电商业务加分项，我有可迁移经验。\n\nDocker目前能做到把自己项目容器化，云端部署运维还在补，但Linux和工程化基础都在，上手不慢。\n\n电话17585074748，邮箱924899361@qq.com，作品集和源码在ssllf8.github.io。随时可以到岗面聊。",
+      "company": "百联全渠道电子商务有限公司（i百联，国企背景）",
+      "title": "AI应用开发工程师",
+      "model": "deepseek-chat",
+      "resume": "A",
+      "generated_at": "2026-09-21 18:59",
+      "chars": 544,
+      "compressed": true,
+      "usage": {
+        "prompt_tokens": 3583,
+        "completion_tokens": 589
+      }
+    },
+    "fuyi-tianjian-ai": {
+      "text": "您好，我是刘展博，应聘复医天健的AI应用开发工程师岗位。\n\n我近半年独立完成了6个AI与工程方向的开源项目，和这个岗位最贴近的有三个。一是在AI工作流自动化平台中，我用Kahn算法实现DAG拓扑排序与环检测，支持LLM调用、条件分支、循环等9类节点的编排与断点续跑，这套思路和岗位要求的多智能体工作流编排是同一个方向。二是在企业知识库问答系统里，我基于LangChain加ChromaDB搭建RAG链路，把相似度阈值和Top-K做成可配置参数，用来平衡召回率与回答精度；智能客服系统同样用这套检索方案，并加了AI置信度不足时转人工的兜底机制。三是在AI数据分析助手中，我用提示词把自然语言转成pandas处理代码再自动出图，提示词设计上做过不少CoT方向的调试。\n\nLangGraph和MCP我目前还在补，但DAG编排、Function Calling式的节点调度和RAG全流程我已经跑通过，上手不会慢。医疗健康这块业务我了解不深，面试前会先做功课。\n\n我的电话是17585074748，邮箱924899361@qq.com，作品集和源码在ssllf8.github.io。我目前在上海，可以随时到岗面聊。",
+      "company": "上海复医天健医疗服务产业股份有限公司",
+      "title": "AI应用开发工程师",
+      "model": "deepseek-chat",
+      "resume": "A",
+      "generated_at": "2026-09-21 19:00",
+      "chars": 503,
+      "compressed": false,
+      "usage": {
+        "prompt_tokens": 3230,
+        "completion_tokens": 287
+      }
+    }
+  }
+}

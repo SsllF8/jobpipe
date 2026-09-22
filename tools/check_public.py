@@ -16,12 +16,15 @@
 
 具体查什么
 ----------
-1. 目录里只允许出现白名单文件 —— `preview-demo.html`（含自荐信正文，点名了
-   在投的公司）与 `local.html`（含真实投递记录）一旦混进来立刻报警。
-2. 页面内联数据里 `cover_letter` 必须全空。
-3. 页面不得内联任何 state 补丁（`state_inlined` 必须为 false）。
-4. 不得出现密钥、本机绝对路径。
-5. PWA 资产必须齐备且 manifest 合法 —— 顺手把「部署上去发现装不了」也挡在前面。
+1. 目录里只允许出现白名单文件 —— `preview-demo.html`（含虚构投递记录）与
+   `local.html`（含真实投递记录）一旦混进来立刻报警。
+2. 页面不得内联任何 state 补丁（`state_inlined` 必须为 false）。
+3. 不得出现密钥、本机绝对路径。
+4. PWA 资产必须齐备且 manifest 合法 —— 顺手把「部署上去发现装不了」也挡在前面。
+
+注意：自荐信**不**在这个清单里。2026-09-22 起它是**主动公开**的内容
+（为了手机上能直接复制正文去投递），所以产物里带自荐信不算泄漏、不拦。
+真正不可挽回的是投递记录（state）与密钥 —— 闸门只为这两样兜底。
 
 用法
 ----
@@ -113,12 +116,7 @@ def audit(publish_dir: Path) -> tuple[list[str], list[str]]:
         apps = data.get("applications") or []
         if not apps:
             errors.append("内联岗位池为空")
-        leaked = [j.get("id") for j in apps if (j.get("cover_letter") or "").strip()]
-        if leaked:
-            errors.append(
-                f"内联数据里有 {len(leaked)} 封自荐信正文：{leaked[:3]} —— "
-                "自荐信点名了投递的公司，不能出现在公开产物里"
-            )
+        # 自荐信不查：2026-09-22 起它是主动公开的内容（见文件头说明）。
 
     meta = extract(html, META_RE)
     if meta is None:
@@ -132,10 +130,8 @@ def audit(publish_dir: Path) -> tuple[list[str], list[str]]:
                 f"构建时读取了本地 state 文件（state_source={source}）—— "
                 "说明这份产物是用 --state 或 data/state.json 构建的，不能发布"
             )
-        if meta.get("letters"):
-            errors.append(f"产物内联了 {meta['letters']} 封自荐信")
         if meta.get("demo"):
-            errors.append("产物是演示版，不该发布（演示版内联了自荐信）")
+            errors.append("产物是演示版，不该发布（演示状态是虚构的投递记录）")
 
     # ---------- 3 敏感字符串 ----------
     for needle in FORBIDDEN_STRINGS:
